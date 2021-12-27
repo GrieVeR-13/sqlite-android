@@ -128,6 +128,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     private static native long nativeOpen(String path, int openFlags, String label,
             boolean enableTrace, boolean enableProfile);
     private static native void nativeClose(long connectionPtr);
+    private static native void nativeRegisterVirtualFileSystem(SQLiteVirtualFileSystem sqLiteVirtualFileSystem);
     private static native void nativeRegisterCustomFunction(long connectionPtr,
             SQLiteCustomFunction function);
     private static native void nativeRegisterFunction(long connectionPtr,
@@ -197,6 +198,10 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         } finally {
             super.finalize();
         }
+    }
+
+    public static void registerVirtualFileSystem(SQLiteVirtualFileSystem sqLiteVirtualFileSystem) {
+        nativeRegisterVirtualFileSystem(sqLiteVirtualFileSystem);
     }
 
     // Called by SQLiteConnectionPool only.

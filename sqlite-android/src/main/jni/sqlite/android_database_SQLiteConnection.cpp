@@ -27,6 +27,7 @@
 #include "JNIHelp.h"
 #include "ALog-priv.h"
 #include "android_database_SQLiteCommon.h"
+#include "android_database_SQLiteVirtualFileSytem.h"
 #include "CursorWindow.h"
 
 #include <string>
@@ -308,6 +309,15 @@ static void sqliteCustomFunctionDestructor(void* data) {
     gpJavaVM->GetEnv((void**)&env, JNI_VERSION_1_4);
     env->DeleteGlobalRef(functionObjGlobal);
 }
+static void nativeRegisterVirtualFileSystem(JNIEnv *env, jclass clazz, jobject vfs) {
+    jobject vfsGlobal = env->NewGlobalRef(vfs);
+    int err = registerVirtualFileSystem(vfsGlobal);
+    if (err != SQLITE_OK) {
+        ALOGE("registerVirtualFileSystem returned %d", err);
+        env->DeleteGlobalRef(vfsGlobal);
+        throw_sqlite3_exception(env, "registerVirtualFileSystem failed");
+    }
+}
 
 static void nativeRegisterCustomFunction(JNIEnv* env, jclass clazz, jlong connectionPtr,
         jobject functionObj) {
@@ -379,11 +389,11 @@ static jlong nativePrepareStatement(JNIEnv* env, jclass clazz, jlong connectionP
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
 
     jsize sqlLength = env->GetStringLength(sqlString);
-    const jchar* sql = env->GetStringCritical(sqlString, NULL);
+    const jchar* sql = env->GetStringChars(sqlString, NULL);
     sqlite3_stmt* statement;
     int err = sqlite3_prepare16_v2(connection->db,
             sql, sqlLength * sizeof(jchar), &statement, NULL);
-    env->ReleaseStringCritical(sqlString, sql);
+    env->ReleaseStringChars(sqlString, sql);
 
     if (err != SQLITE_OK) {
         // Error messages like 'near ")": syntax error' are not
@@ -496,10 +506,10 @@ static void nativeBindString(JNIEnv* env, jclass clazz, jlong connectionPtr,
     sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
 
     jsize valueLength = env->GetStringLength(valueString);
-    const jchar* value = env->GetStringCritical(valueString, NULL);
+    const jchar* value = env->GetStringChars(valueString, NULL);
     int err = sqlite3_bind_text16(statement, index, value, valueLength * sizeof(jchar),
             SQLITE_TRANSIENT);
-    env->ReleaseStringCritical(valueString, value);
+    env->ReleaseStringChars(valueString, value);
     if (err != SQLITE_OK) {
         throw_sqlite3_exception(env, connection->db, NULL);
     }
@@ -920,6 +930,8 @@ static JNINativeMethod sMethods[] =
             (void*)nativeOpen },
     { "nativeClose", "(J)V",
             (void*)nativeClose },
+    { "nativeRegisterVirtualFileSystem", "(Lio/requery/android/database/sqlite/SQLiteVirtualFileSystem;)V",
+            (void*)nativeRegisterVirtualFileSystem },
     { "nativeRegisterCustomFunction", "(JLio/requery/android/database/sqlite/SQLiteCustomFunction;)V",
             (void*)nativeRegisterCustomFunction },
     { "nativeRegisterFunction", "(JLio/requery/android/database/sqlite/SQLiteFunction;)V",
@@ -1015,6 +1027,12 @@ extern int register_android_database_CursorWindow(JNIEnv *env);
 
 } // namespace android
 
+JNIEnv *getEnv() {
+    JNIEnv *env = nullptr;
+    android::gpJavaVM->GetEnv((void **) &env, JNI_VERSION_1_4);
+    return env;
+}
+
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   JNIEnv *env = 0;
 
@@ -1026,8 +1044,10 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   android::register_android_database_SQLiteGlobal(env);
   android::register_android_database_CursorWindow(env);
   android::register_android_database_SQLiteFunction(env);
+  register_android_database_SQLiteVirtualFileSystem(env);
 
-  return JNI_VERSION_1_4;
+
+    return JNI_VERSION_1_4;
 }
 
 
