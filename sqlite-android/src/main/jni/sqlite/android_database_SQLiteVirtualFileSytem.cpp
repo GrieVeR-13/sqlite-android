@@ -402,7 +402,7 @@ int registerVirtualFileSystem(jobject virtualFileSystem) {
             sarchCurrentTime,              /* xCurrentTime */
     };
 
-    return sqlite3_vfs_register(&sqlite3_vfs, 1);
+    return sqlite3_vfs_register(&sqlite3_vfs, 0);
 }
 
 int register_android_database_SQLiteVirtualFileSystem(JNIEnv *env) {

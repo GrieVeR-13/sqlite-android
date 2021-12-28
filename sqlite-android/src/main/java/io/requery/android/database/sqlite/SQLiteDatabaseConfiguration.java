@@ -58,6 +58,8 @@ public final class SQLiteDatabaseConfiguration {
      */
     public final String label;
 
+    public final String vfs;
+
     /**
      * The flags used to open the database.
      */
@@ -111,12 +113,17 @@ public final class SQLiteDatabaseConfiguration {
      * @param openFlags Open flags for the database, such as {@link SQLiteDatabase#OPEN_READWRITE}.
      */
     public SQLiteDatabaseConfiguration(String path, @SQLiteDatabase.OpenFlags int openFlags) {
+        this(path, openFlags, null);
+    }
+
+    public SQLiteDatabaseConfiguration(String path, @SQLiteDatabase.OpenFlags int openFlags, String vfs) {
         if (path == null) {
             throw new IllegalArgumentException("path must not be null.");
         }
 
         this.path = path;
         label = stripPathForLogs(path);
+        this.vfs = vfs;
         this.openFlags = openFlags;
 
         // Set default values for optional parameters.
@@ -156,6 +163,7 @@ public final class SQLiteDatabaseConfiguration {
 
         this.path = other.path;
         this.label = other.label;
+        this.vfs = other.vfs;
         updateParametersFrom(other);
     }
 

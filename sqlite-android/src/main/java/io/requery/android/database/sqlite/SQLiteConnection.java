@@ -131,7 +131,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     private int mCancellationSignalAttachCount;
 
     private static native long nativeOpen(String path, int openFlags, String label,
-            boolean enableTrace, boolean enableProfile);
+            boolean enableTrace, boolean enableProfile, String vfs);
     private static native void nativeClose(long connectionPtr);
     private static native void nativeRegisterVirtualFileSystem(SQLiteVirtualFileSystem sqLiteVirtualFileSystem);
     private static native void nativeRegisterCustomFunction(long connectionPtr,
@@ -236,7 +236,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
                 // remove the wal flag as its a custom flag not supported by sqlite3_open_v2
                 mConfiguration.openFlags & ~SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
                 mConfiguration.label,
-                SQLiteDebug.DEBUG_SQL_STATEMENTS, SQLiteDebug.DEBUG_SQL_TIME);
+                SQLiteDebug.DEBUG_SQL_STATEMENTS, SQLiteDebug.DEBUG_SQL_TIME, mConfiguration.vfs);
 
         setPageSize();
         setForeignKeyModeFromConfiguration();

@@ -128,7 +128,7 @@ static int coll_localized(
 }
 
 static jlong nativeOpen(JNIEnv* env, jclass clazz, jstring pathStr, jint openFlags,
-        jstring labelStr, jboolean enableTrace, jboolean enableProfile) {
+        jstring labelStr, jboolean enableTrace, jboolean enableProfile, jstring zVfsStr) {
 
     const char* pathChars = env->GetStringUTFChars(pathStr, NULL);
     std::string path(pathChars);
@@ -138,8 +138,17 @@ static jlong nativeOpen(JNIEnv* env, jclass clazz, jstring pathStr, jint openFla
     std::string label(labelChars);
     env->ReleaseStringUTFChars(labelStr, labelChars);
 
+
+    std::string *zVfs = nullptr;
+    if (zVfsStr != nullptr) {
+        const char *zVfsChar = env->GetStringUTFChars(zVfsStr, NULL);
+        zVfs = new std::string(zVfsChar);
+        env->ReleaseStringUTFChars(zVfsStr, zVfsChar);
+    }
+
     sqlite3* db;
-    int err = sqlite3_open_v2(path.c_str(), &db, openFlags, NULL);
+    int err = sqlite3_open_v2(path.c_str(), &db, openFlags, zVfs != nullptr ? zVfs->c_str() : nullptr);
+    delete zVfsStr;
     if (err != SQLITE_OK) {
         throw_sqlite3_exception_errcode(env, err, "Could not open database");
         return 0;
@@ -926,7 +935,7 @@ static void nativeLoadExtension(JNIEnv* env, jobject clazz,
 static JNINativeMethod sMethods[] =
 {
     /* name, signature, funcPtr */
-    { "nativeOpen", "(Ljava/lang/String;ILjava/lang/String;ZZ)J",
+    { "nativeOpen", "(Ljava/lang/String;ILjava/lang/String;ZZLjava/lang/String;)J",
             (void*)nativeOpen },
     { "nativeClose", "(J)V",
             (void*)nativeClose },
