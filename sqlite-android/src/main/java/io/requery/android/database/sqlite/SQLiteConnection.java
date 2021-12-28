@@ -93,6 +93,11 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("TryFinallyCanBeTryWithResources")
 public final class SQLiteConnection implements CancellationSignal.OnCancelListener {
+
+    static {
+        SQLiteDatabase.init();
+    }
+
     private static final String TAG = "SQLiteConnection";
     private static final boolean DEBUG = false;
 

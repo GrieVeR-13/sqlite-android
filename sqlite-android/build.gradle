@@ -32,15 +32,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-//    externalNativeBuild {
-//        ndkBuild {
-//            path 'src/main/jni/Android.mk'
-//            path 'src/main/jni/Application.mk'
-//        }
-//    }
     externalNativeBuild {
-        cmake {
-            path "src/main/jni/sqlite/CMakeLists.txt"
+        ndkBuild {
+            path 'src/main/jni/Android.mk'
         }
     }
 

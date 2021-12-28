@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
-project(sqliteX VERSION 1.0.0 LANGUAGES C CXX)
+project(sqlite3x VERSION 1.0.0 LANGUAGES C CXX)
 
-add_library(sqliteX SHARED
+add_library(sqlite3x SHARED
     android_database_SQLiteCommon.cpp
     android_database_SQLiteConnection.cpp
     android_database_SQLiteFunction.cpp
@@ -17,10 +17,10 @@ add_library(sqliteX SHARED
     sqlite3.c
 )
 
-target_include_directories(sqliteX PUBLIC include)
+target_include_directories(sqlite3x PUBLIC include)
 
 
-target_compile_definitions(sqliteX
+target_compile_definitions(sqlite3x
         PRIVATE
         SQLITE_TEMP_STORE=3
         HAVE_CONFIG_H
@@ -40,7 +40,7 @@ target_compile_definitions(sqliteX
         SQLITE_ENABLE_BATCH_ATOMIC_WRITE
         )
 
-target_compile_options(sqliteX
+target_compile_options(sqlite3x
         PRIVATE
         -Wno-unused-parameter
         -Wno-int-to-pointer-cast
@@ -49,12 +49,12 @@ target_compile_options(sqliteX
         -Wno-conversion-null
         )
 
-target_include_directories(sqliteX
+target_include_directories(sqlite3x
         PRIVATE
         ../sqlite
         )
 
-target_link_libraries(sqliteX
+target_link_libraries(sqlite3x
         dl
         log
         )

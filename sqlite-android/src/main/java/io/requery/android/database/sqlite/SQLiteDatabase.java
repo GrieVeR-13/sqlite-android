@@ -88,16 +88,10 @@ public final class SQLiteDatabase extends SQLiteClosable implements SupportSQLit
      */
     public static final String LIBRARY_NAME = "sqlite3x";
     static {
-//        System.loadLibrary(LIBRARY_NAME);
+        System.loadLibrary(LIBRARY_NAME);
     }
 
-    public static void loadLibrary() {
-        System.loadLibrary("sqliteX");
-    }
-
-    public static void asd() {
-
-    }
+    static void init() {}
 
     private static final String TAG = "SQLiteDatabase";
 
