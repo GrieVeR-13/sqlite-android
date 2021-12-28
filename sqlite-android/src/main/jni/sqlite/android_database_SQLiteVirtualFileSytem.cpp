@@ -341,7 +341,7 @@ static int vfsFullPathname(
     }
     zDir[MAXPATHNAME] = '\0';
 
-    sqlite3_snprintf(nPathOut, zPathOut, "%s/%s", zDir, zPath);
+    sqlite3_snprintf(nPathOut, zPathOut, "%s", zPath);
     zPathOut[nPathOut - 1] = '\0';
 
     return SQLITE_OK;
