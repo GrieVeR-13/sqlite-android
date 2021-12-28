@@ -58,8 +58,6 @@ public final class SQLiteDatabaseConfiguration {
      */
     public final String label;
 
-    public final String vfs;
-
     /**
      * The flags used to open the database.
      */
@@ -123,7 +121,6 @@ public final class SQLiteDatabaseConfiguration {
 
         this.path = path;
         label = stripPathForLogs(path);
-        this.vfs = vfs;
         this.openFlags = openFlags;
 
         // Set default values for optional parameters.
@@ -163,7 +160,6 @@ public final class SQLiteDatabaseConfiguration {
 
         this.path = other.path;
         this.label = other.label;
-        this.vfs = other.vfs;
         updateParametersFrom(other);
     }
 

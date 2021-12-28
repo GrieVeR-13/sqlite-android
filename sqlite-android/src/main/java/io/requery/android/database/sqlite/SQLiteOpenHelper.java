@@ -247,7 +247,8 @@ public abstract class SQLiteOpenHelper implements SupportSQLiteOpenHelper {
                     }
                     Log.e(TAG, "Couldn't open " + mName
                             + " for writing (will try read-only):", ex);
-                    final String path = mContext.getDatabasePath(mName).getPath();
+//                    final String path = mContext.getDatabasePath(mName).getPath();
+                    final String path = mName;
                     SQLiteDatabaseConfiguration configuration =
                         createConfiguration(path, SQLiteDatabase.OPEN_READONLY);
                     db = SQLiteDatabase.openDatabase(configuration, mFactory, mErrorHandler);

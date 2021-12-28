@@ -15,7 +15,7 @@
  */
 // modified from original source see README at the top level of this project
 /*
-** Modified to support SQLite extensions by the SQLite developers: 
+** Modified to support SQLite extensions by the SQLite developers:
 ** sqlite-dev@sqlite.org.
 */
 
@@ -231,12 +231,29 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         dispose(false);
     }
 
+    static String getVfsDatabaseName(String vfs, String name) {
+        return vfs + delimiterNull + name;
+    }
+
+    private static final String delimiterNull = "\u0000";
+
     private void open() {
-        mConnectionPtr = nativeOpen(mConfiguration.path,
+        String[] strings = mConfiguration.path.split(delimiterNull);
+        String path;
+        String vfs;
+        if (strings.length >= 2) {
+            vfs = strings[0];
+            path = strings[1];
+        }
+        else {
+            vfs = null;
+            path = mConfiguration.path;
+        }
+        mConnectionPtr = nativeOpen(path,
                 // remove the wal flag as its a custom flag not supported by sqlite3_open_v2
                 mConfiguration.openFlags & ~SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING,
                 mConfiguration.label,
-                SQLiteDebug.DEBUG_SQL_STATEMENTS, SQLiteDebug.DEBUG_SQL_TIME, mConfiguration.vfs);
+                SQLiteDebug.DEBUG_SQL_STATEMENTS, SQLiteDebug.DEBUG_SQL_TIME, vfs);
 
         setPageSize();
         setForeignKeyModeFromConfiguration();
