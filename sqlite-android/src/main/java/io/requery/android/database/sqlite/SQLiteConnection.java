@@ -133,7 +133,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     private static native long nativeOpen(String path, int openFlags, String label,
             boolean enableTrace, boolean enableProfile, String vfs);
     private static native void nativeClose(long connectionPtr);
-    private static native void nativeRegisterVirtualFileSystem(SQLiteVirtualFileSystem sqLiteVirtualFileSystem);
+    private static native void nativeRegisterVirtualFileSystem(String name, SQLiteVirtualFileSystem sqLiteVirtualFileSystem);
     private static native void nativeRegisterCustomFunction(long connectionPtr,
             SQLiteCustomFunction function);
     private static native void nativeRegisterFunction(long connectionPtr,
@@ -205,8 +205,8 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         }
     }
 
-    public static void registerVirtualFileSystem(SQLiteVirtualFileSystem sqLiteVirtualFileSystem) {
-        nativeRegisterVirtualFileSystem(sqLiteVirtualFileSystem);
+    public static void registerVirtualFileSystem(String name, SQLiteVirtualFileSystem sqLiteVirtualFileSystem) {
+        nativeRegisterVirtualFileSystem(name, sqLiteVirtualFileSystem);
     }
 
     // Called by SQLiteConnectionPool only.
@@ -231,7 +231,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         dispose(false);
     }
 
-    static String getVfsDatabaseName(String vfs, String name) {
+    public static String getVfsDatabaseName(String vfs, String name) {
         return vfs + delimiterNull + name;
     }
 

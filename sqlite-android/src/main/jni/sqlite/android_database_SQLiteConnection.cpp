@@ -148,7 +148,8 @@ static jlong nativeOpen(JNIEnv* env, jclass clazz, jstring pathStr, jint openFla
 
     sqlite3* db;
     int err = sqlite3_open_v2(path.c_str(), &db, openFlags, zVfs != nullptr ? zVfs->c_str() : nullptr);
-    delete zVfsStr;
+    if (zVfs != nullptr)
+        delete zVfs;
     if (err != SQLITE_OK) {
         throw_sqlite3_exception_errcode(env, err, "Could not open database");
         return 0;
@@ -318,9 +319,15 @@ static void sqliteCustomFunctionDestructor(void* data) {
     gpJavaVM->GetEnv((void**)&env, JNI_VERSION_1_4);
     env->DeleteGlobalRef(functionObjGlobal);
 }
-static void nativeRegisterVirtualFileSystem(JNIEnv *env, jclass clazz, jobject vfs) {
+
+static void nativeRegisterVirtualFileSystem(JNIEnv *env, jclass clazz, jstring nameStr, jobject vfs) {
     jobject vfsGlobal = env->NewGlobalRef(vfs);
-    int err = registerVirtualFileSystem(vfsGlobal);
+
+    const char* nameChars = env->GetStringUTFChars(nameStr, NULL);
+    const char* name = strdup(nameChars);
+    env->ReleaseStringUTFChars(nameStr, nameChars);
+
+    int err = registerVirtualFileSystem(name, vfsGlobal);
     if (err != SQLITE_OK) {
         ALOGE("registerVirtualFileSystem returned %d", err);
         env->DeleteGlobalRef(vfsGlobal);
@@ -939,7 +946,7 @@ static JNINativeMethod sMethods[] =
             (void*)nativeOpen },
     { "nativeClose", "(J)V",
             (void*)nativeClose },
-    { "nativeRegisterVirtualFileSystem", "(Lio/requery/android/database/sqlite/SQLiteVirtualFileSystem;)V",
+    { "nativeRegisterVirtualFileSystem", "(Ljava/lang/String;Lio/requery/android/database/sqlite/SQLiteVirtualFileSystem;)V",
             (void*)nativeRegisterVirtualFileSystem },
     { "nativeRegisterCustomFunction", "(JLio/requery/android/database/sqlite/SQLiteCustomFunction;)V",
             (void*)nativeRegisterCustomFunction },

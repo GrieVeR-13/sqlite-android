@@ -20,8 +20,6 @@ extern "C" {
 #endif
 
 
-static jobject vfs = nullptr;
-
 #include "cutil/vfsio.h"
 
 struct VfsFile {
@@ -279,7 +277,7 @@ static int vfsOpen(
     memset(p, 0, sizeof(VfsFile));
 
     auto env = getEnv();
-    auto vfsIo = vfsio_open(env, vfs, zName);
+    auto vfsIo = vfsio_open(env, (jobject) pVfs->pAppData, zName);
     if (vfsIo == nullptr) {
         sqlite3_free(aBuf);
         return SQLITE_CANTOPEN;
@@ -298,7 +296,7 @@ static int vfsOpen(
 static int vfsDelete(sqlite3_vfs *pVfs, const char *zPath, int dirSync) {
     int rc;                         /* Return code */
 
-    rc = vfsio_delete(getEnv(), vfs, zPath);
+    rc = vfsio_delete(getEnv(), (jobject)pVfs->pAppData, zPath);
     if (rc != 0 && errno == ENOENT) return SQLITE_OK;
 
     if (rc == 0 && dirSync) {
@@ -323,7 +321,7 @@ static int vfsAccess(
     if (flags == SQLITE_ACCESS_READWRITE) eAccess = R_OK | W_OK;
     if (flags == SQLITE_ACCESS_READ) eAccess = R_OK;
 
-    *pResOut = vfsio_access(getEnv(), vfs, zPath, eAccess);
+    *pResOut = vfsio_access(getEnv(), (jobject )pVfs->pAppData, zPath, eAccess);
     return SQLITE_OK;
 }
 
@@ -379,16 +377,14 @@ static int sarchCurrentTime(sqlite3_vfs *pVfs, double *pTime) {
     return SQLITE_OK;
 }
 
-int registerVirtualFileSystem(jobject virtualFileSystem) {
-    vfs = virtualFileSystem;
-
+int registerVirtualFileSystem(const char* name, jobject virtualFileSystem) {
     static sqlite3_vfs sqlite3_vfs = {
             1,                            /* iVersion */
             sizeof(VfsFile),             /* szOsFile */
             MAXPATHNAME,                  /* mxPathname */
             nullptr,                            /* pNext */
-            "sqlite-vfs",                       /* zName */
-            nullptr,                            /* pAppData */
+            name,                       /* zName */
+            virtualFileSystem,                            /* pAppData */
             vfsOpen,                     /* xOpen */
             vfsDelete,                   /* xDelete */
             vfsAccess,                   /* xAccess */

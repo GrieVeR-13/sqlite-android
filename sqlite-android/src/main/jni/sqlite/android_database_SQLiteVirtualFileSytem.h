@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 int register_android_database_SQLiteVirtualFileSystem(JNIEnv *env);
-int registerVirtualFileSystem(jobject virtualFileSystem);
+int registerVirtualFileSystem(const char* name, jobject virtualFileSystem);
 
 #ifdef __cplusplus
 }
