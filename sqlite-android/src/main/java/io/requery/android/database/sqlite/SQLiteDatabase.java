@@ -88,7 +88,15 @@ public final class SQLiteDatabase extends SQLiteClosable implements SupportSQLit
      */
     public static final String LIBRARY_NAME = "sqlite3x";
     static {
-        System.loadLibrary(LIBRARY_NAME);
+//        System.loadLibrary(LIBRARY_NAME);
+    }
+
+    public static void loadLibrary() {
+        System.loadLibrary("sqliteX");
+    }
+
+    public static void asd() {
+
     }
 
     private static final String TAG = "SQLiteDatabase";
@@ -809,10 +817,10 @@ public final class SQLiteDatabase extends SQLiteClosable implements SupportSQLit
 
     private void open() {
         try {
-            if (!mConfigurationLocked.isInMemoryDb()
-                    && (mConfigurationLocked.openFlags & OPEN_CREATE) != 0) {
-                ensureFile(mConfigurationLocked.path);
-            }
+//            if (!mConfigurationLocked.isInMemoryDb()
+//                    && (mConfigurationLocked.openFlags & OPEN_CREATE) != 0) {
+//                ensureFile(mConfigurationLocked.path);
+//            }
             try {
                 openInner();
             } catch (SQLiteDatabaseCorruptException ex) {

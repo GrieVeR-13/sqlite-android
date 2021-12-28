@@ -163,6 +163,10 @@ static int vfsRead(
 }
 
 static int vfsTruncate(sqlite3_file *pFile, sqlite_int64 size) {
+    auto *p = (VfsFile *) pFile;
+    int rc = vfsio_truncate(getEnv(), p->vfsIo, size);
+    if (rc == -1)
+        return SQLITE_IOERR_TRUNCATE;
     return SQLITE_OK;
 }
 
@@ -309,7 +313,6 @@ static int vfsAccess(
         int flags,
         int *pResOut
 ) {
-    int rc;                         /* access() return code */
     int eAccess = F_OK;             /* Second argument to access() */
 
     assert(flags == SQLITE_ACCESS_EXISTS       /* access(zPath, F_OK) */
@@ -320,8 +323,7 @@ static int vfsAccess(
     if (flags == SQLITE_ACCESS_READWRITE) eAccess = R_OK | W_OK;
     if (flags == SQLITE_ACCESS_READ) eAccess = R_OK;
 
-    rc = vfsio_access(getEnv(), vfs, zPath, eAccess);
-    *pResOut = (rc == 0);
+    *pResOut = vfsio_access(getEnv(), vfs, zPath, eAccess);
     return SQLITE_OK;
 }
 

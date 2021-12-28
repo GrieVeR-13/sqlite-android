@@ -19,19 +19,20 @@ jmethodID closeMethodId;
 jmethodID seekMethodId;
 jmethodID getFilePointerMethodId;
 jmethodID lengthMethodId;
+jmethodID truncateMethodId;
 
 jmethodID preadMethodId;
 jmethodID pwriteMethodId;
 
 
-//#define CHECK
+#define CHECK
 
 static jint cache_methods(JNIEnv *env) {
 
     jclass vfsCls;
-    vfsCls = CHECK((*env)->FindClass(env, "org/sqlite/database/sqlite/SQLiteVirtualFileSystem"));
+    vfsCls = CHECK((*env)->FindClass(env, "io/requery/android/database/sqlite/SQLiteVirtualFileSystem"));
     openMethodId = CHECK((*env)->GetMethodID(env, vfsCls, "open",
-                                             "(Ljava/lang/String;)Lorg/sqlite/database/sqlite/SQLiteVfsIo;"));
+                                             "(Ljava/lang/String;)Lio/requery/android/database/sqlite/SQLiteVfsIo;"));
     deleteMethodId = CHECK((*env)->GetMethodID(env, vfsCls, "delete",
                                                "(Ljava/lang/String;)V"));
     accessMethodId = CHECK((*env)->GetMethodID(env, vfsCls, "access",
@@ -39,7 +40,7 @@ static jint cache_methods(JNIEnv *env) {
     (*env)->DeleteLocalRef(env, vfsCls);
 
     jclass vfsIoCls;
-    vfsIoCls = CHECK((*env)->FindClass(env, "org/sqlite/database/sqlite/SQLiteVfsIo"));
+    vfsIoCls = CHECK((*env)->FindClass(env, "io/requery/android/database/sqlite/SQLiteVfsIo"));
 
     readMethodId = CHECK((*env)->GetMethodID(env, vfsIoCls, "read", "([BII)I"));
     writeMethodId = CHECK((*env)->GetMethodID(env, vfsIoCls, "write", "([BII)V"));
@@ -48,13 +49,14 @@ static jint cache_methods(JNIEnv *env) {
     seekMethodId = CHECK((*env)->GetMethodID(env, vfsIoCls, "setPosition", "(J)V"));
     getFilePointerMethodId = CHECK((*env)->GetMethodID(env, vfsIoCls, "getPosition", "()J"));
     lengthMethodId = CHECK((*env)->GetMethodID(env, vfsIoCls, "getLength", "()J"));
+    truncateMethodId = CHECK((*env)->GetMethodID(env, vfsIoCls, "truncate", "(J)V"));
 
 
     vfsIoClassGlobal = CHECK((*env)->NewGlobalRef(env, vfsIoCls));
     preadMethodId = CHECK((*env)->GetStaticMethodID(env, vfsIoCls, "pread",
-                                                    "(Lorg/sqlite/database/sqlite/SQLiteVfsIo;[BIIJ)I"));
+                                                    "(Lio/requery/android/database/sqlite/SQLiteVfsIo;[BIIJ)I"));
     pwriteMethodId = CHECK((*env)->GetStaticMethodID(env, vfsIoCls, "pwrite",
-                                                     "(Lorg/sqlite/database/sqlite/SQLiteVfsIo;[BIIJ)I"));
+                                                     "(Lio/requery/android/database/sqlite/SQLiteVfsIo;[BIIJ)I"));
     (*env)->DeleteLocalRef(env, vfsIoCls);
     return JNI_OK;
 }
@@ -103,7 +105,6 @@ int vfsio_access(JNIEnv *env, jobject vfs, const char *path, int mode) {
     (*env)->DeleteLocalRef(env, jpath);
     return res;
 }
-
 
 ssize_t vfsio_read(JNIEnv *env, jobject vfsio, uint8_t *buf, size_t count) {
     int rc;
@@ -203,6 +204,10 @@ ssize_t vfsio_pwrite(JNIEnv *env, jobject vfsio, const uint8_t *buf, size_t coun
     (*env)->DeleteLocalRef(env, byteArray);
 
     return res;
+}
+
+int vfsio_truncate(JNIEnv *env, jobject vfsio, off64_t size) {
+    return call_jni_void_func(env, vfsio, truncateMethodId, (jlong) size);
 }
 
 int vfsio_seek(JNIEnv *env, jobject vfsio, off64_t pos) {

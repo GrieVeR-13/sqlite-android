@@ -14,6 +14,7 @@ ssize_t vfsio_read(JNIEnv *env, jobject vfsio, uint8_t *buf, size_t count);
 ssize_t vfsio_pread(JNIEnv *env, jobject vfsio, uint8_t *buf, size_t count, off64_t pos);
 ssize_t vfsio_write(JNIEnv *env, jobject vfsio, const uint8_t *buf, size_t count);
 ssize_t vfsio_pwrite(JNIEnv *env, jobject vfsio, const uint8_t *buf, size_t count, off64_t pos);
+int vfsio_truncate(JNIEnv *env, jobject vfsio, off64_t size);
 int vfsio_seek(JNIEnv *env, jobject vfsio, off64_t pos);
 int vfsio_seek_whence(JNIEnv *env, jobject vfsio, off64_t pos, int whence);
 off64_t vfsio_get_pos(JNIEnv *env, jobject vfsio);

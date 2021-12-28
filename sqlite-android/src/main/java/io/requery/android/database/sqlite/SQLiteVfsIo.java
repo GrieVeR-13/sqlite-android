@@ -16,7 +16,7 @@ public interface SQLiteVfsIo {
 
     long getLength();
 
-    void truncate();
+    void truncate(long length);
 
     static int pread(SQLiteVfsIo io, byte[] buf, int bufOffset, int count, long position) {
         long cur = io.getPosition();

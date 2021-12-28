@@ -228,6 +228,7 @@ public abstract class SQLiteOpenHelper implements SupportSQLiteOpenHelper {
             } else {
                 try {
                     final String path = mContext.getDatabasePath(mName).getPath();
+//                    final String path = mName;
                     if (DEBUG_STRICT_READONLY && !writable) {
                         SQLiteDatabaseConfiguration configuration =
                             createConfiguration(path, SQLiteDatabase.OPEN_READONLY);
