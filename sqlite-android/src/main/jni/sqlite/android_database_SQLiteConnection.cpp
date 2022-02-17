@@ -1041,13 +1041,13 @@ extern int register_android_database_SQLiteDebug(JNIEnv *env);
 extern int register_android_database_SQLiteFunction(JNIEnv *env);
 extern int register_android_database_CursorWindow(JNIEnv *env);
 
-} // namespace android
-
 JNIEnv *getEnv() {
     JNIEnv *env = nullptr;
     android::gpJavaVM->GetEnv((void **) &env, JNI_VERSION_1_4);
     return env;
 }
+
+} // namespace android
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   JNIEnv *env = 0;

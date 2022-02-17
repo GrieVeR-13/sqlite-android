@@ -13,7 +13,11 @@
 #define SQLITE_VFS_BUFFERSZ 8192
 #define MAXPATHNAME 512
 
-JNIEnv *getEnv();
+namespace android {
+    JNIEnv *getEnv();
+}
+
+using namespace android;
 
 #ifdef __cplusplus
 extern "C" {
